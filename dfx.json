@@ -1,0 +1,20 @@
+{
+    "canisters": {
+      "taxi_reservation_system": {
+        "type": "motoko",
+        "main": "src/main.mo", 
+        "candid": "src/taxi_reservation_system.did"
+      }
+    },
+    "networks": {
+      "local": {
+        "bind": "127.0.0.1:8000",
+        "type": "ephemeral"
+      },
+      "ic": {
+        "providers": ["https://ic0.app"]
+      }
+    },
+    "version": 1
+  }
+  
