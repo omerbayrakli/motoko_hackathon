@@ -25,6 +25,8 @@ Bu proje, İstanbul gibi yoğun trafik ve yüksek talep olan şehirlerde, taksi 
 
 ## 🛠️ Kurulum
 
+### Dosyalar tek tek yüklenmiştir. Normalde src klasörünün içerisinde app.js , index.html , main.mo vardı. Fakat github'a yüklerken dosya halinde yükleyemediğim için bu şekilde ayrı ayrı yükledim. Dosyaları çalıştırıken uzantıları kontrol etmenizde fayda var.
+
 ### 1. Gereksinimler
 
 Projenin çalışması için aşağıdaki araçların sisteminizde kurulu olması gerekmektedir:
