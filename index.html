@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taxi Reservation System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    form, button {
+      margin-bottom: 15px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      padding: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Taxi Reservation System</h1>
+
+  <!-- Add Rezervation -->
+  <form id="reservationForm">
+    <input type="text" id="customerName" placeholder="Your Name" required />
+    <input type="text" id="destination" placeholder="Destination" required />
+    <button type="submit">Add Reservation</button>
+  </form>
+
+  <!-- Remove Rezervation -->
+  <form id="deleteForm">
+    <input type="text" id="deleteId" placeholder="Reservation ID" required />
+    <button type="submit">Delete Reservation</button>
+  </form>
+
+
+  <button id="listReservations">List Reservations</button>
+  <button id="clearReservations">Clear All Reservations</button>
+
+  <!-- Rezervations -->
+  <ul id="reservationsList"></ul>
+
+  <script type="module">
+    import { Actor, HttpAgent } from "https://unpkg.com/@dfinity/agent@latest?module";
+
+    // IDL ve backend bağlantısını ayarlıyoruz
+    const idlFactory = ({ IDL }) => {
+      const Reservation = IDL.Record({
+        reservationId: IDL.Text,
+        customerName: IDL.Text,
+        destination: IDL.Text,
+      });
+
+      return IDL.Service({
+        addReservation: IDL.Func([IDL.Text, IDL.Text], [IDL.Text], []),
+        listReservations: IDL.Func([], [IDL.Vec(Reservation)], ["query"]),
+        deleteReservation: IDL.Func([IDL.Text], [IDL.Text], []),
+        clearReservations: IDL.Func([], [IDL.Text], []),
+      });
+    };
+
+    const canisterId = "<CANISTER_ID>"; // Backend Canister ID'nizi buraya ekleyin
+    const agent = new HttpAgent({ host: "http://127.0.0.1:8000" }); // Yerel ortam için
+    const taxiReservationSystem = Actor.createActor(idlFactory, {
+      agent,
+      canisterId,
+    });
+
+    
+    const reservationForm = document.getElementById("reservationForm");
+    const customerNameInput = document.getElementById("customerName");
+    const destinationInput = document.getElementById("destination");
+    const deleteForm = document.getElementById("deleteForm");
+    const deleteIdInput = document.getElementById("deleteId");
+    const listReservationsBtn = document.getElementById("listReservations");
+    const clearReservationsBtn = document.getElementById("clearReservations");
+    const reservationsList = document.getElementById("reservationsList");
+
+    
+    reservationForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const customerName = customerNameInput.value;
+      const destination = destinationInput.value;
+
+      const response = await taxiReservationSystem.addReservation(customerName, destination);
+      alert(response);
+    });
+
+    
+    deleteForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const reservationId = deleteIdInput.value;
+
+      const response = await taxiReservationSystem.deleteReservation(reservationId);
+      alert(response);
+    });
+
+    
+    listReservationsBtn.addEventListener("click", async () => {
+      const reservations = await taxiReservationSystem.listReservations();
+      reservationsList.innerHTML = reservations
+        .map(
+          (r) =>
+            `<li>ID: ${r.reservationId} | Name: ${r.customerName} -> ${r.destination}</li>`
+        )
+        .join("");
+    });
+
+    
+    clearReservationsBtn.addEventListener("click", async () => {
+      const response = await taxiReservationSystem.clearReservations();
+      alert(response);
+      reservationsList.innerHTML = "";
+    });
+  </script>
+</body>
+</html>
